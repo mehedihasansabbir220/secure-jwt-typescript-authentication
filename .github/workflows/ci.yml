@@ -1,0 +1,45 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    services:
+      mongodb:
+        image: mongo:latest
+        ports:
+          - 27017:27017
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Use Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18.x'
+    
+    - name: Install Dependencies
+      run: npm ci
+    
+    - name: Run Linter
+      run: npm run lint
+    
+    - name: Run Tests
+      run: npm test
+      env:
+        MONGODB_URI: mongodb+srv://devmehedi208:HjW7uV9fPZewTBnF@cluster0.f7sol.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+    
+    - name: Build Project
+      run: npm run build
+    
+    - name: Deploy to Production
+      if: github.ref == 'refs/heads/main'
+      run: |
+        # Add your deployment script here
+        # Could be using SSH, Docker, or cloud services like Heroku/AWS
